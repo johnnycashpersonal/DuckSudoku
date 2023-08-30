@@ -220,40 +220,42 @@ class Board(object):
         """Eliminate Candidates and Check for sole remaining possibilities.
         Return Value true means we crossed off at least one candidate.
         Return Value False means we made no progress."""
+        
         made_progress = False
 
         for row_idx in range(NROWS):
             for col_idx in range(NCOLS):
-                tile = self.tiles[row_idx][col_idx]
-                if tile == '.':
-                    candidates = list(CHOICES)
+                tile_value = self.tiles[row_idx][col_idx]  # Renamed to avoid shadowing
+                if tile_value == '.':
+                    candidates = list(CHOICES)  # Assuming CHOICES is a string, convert to list
 
-                    #row checks
+                    # Row Checks
                     row_group = self.groups[NCOLS + row_idx]
-                    for tile in row_group:
-                        if tile != '.':
-                            candidates.remove(str(tile))
+                    for row_tile in row_group:  # Renamed to avoid shadowing
+                        if row_tile != '.':
+                            candidates.remove(row_tile)
 
-                    #column check
+                    # Column Check
                     col_group = self.groups[col_idx]
-                    for tile in col_group:
-                        if tile != '.':
-                            candidates.remove(str(tile))
+                    for col_tile in col_group:  # Renamed to avoid shadowing
+                        if col_tile != '.':
+                            candidates.remove(col_tile)
 
-                    #row checks
+                    # Block Check
                     block_idx = NCOLS + NROWS + ROOT * (row_idx // ROOT) + (col_idx // ROOT)
                     block_group = self.groups[block_idx]
-                    for tile in block_group:
-                        if tile in block_group:
-                            if tile != '.':
-                                candidates.remove(str(tile))
+                    for block_tile in block_group:  # Renamed to avoid shadowing
+                        if block_tile != '.':
+                            candidates.remove(block_tile)
 
-                    #Check for 'naked single'
-                    if len(str(CHOICES)) == 1:
-                        #update tile
-                        self.tiles[row_idx][col_idx] = str(int(candidates)[0])
+                    # Check for 'Naked Single'
+                    if len(candidates) == 1:  # Corrected the condition
+                        # Update Tile
+                        self.tiles[row_idx][col_idx] = candidates[0]  # Corrected the update syntax
                         made_progress = True
+
         return made_progress
+
     
     def solve(self):
         #FIXME: This will be added in the next step.
