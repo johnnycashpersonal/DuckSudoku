@@ -116,6 +116,24 @@ class Tile(Listenable):
     def could_be(self, value:str) -> bool:
         """True if this tile could be value."""
         return value in self.candidates
+
+    def remove_candidates(self, used_values: Set[str]) -> bool:
+        """The used values cannot be a value of this unknown tile.
+        We remove those possibilities from the list of candidates.
+        If there is exactly one candidate left, we set the
+        value of the tile.
+        Returns:  True means we eliminated at least one candidate,
+        False means nothing changed (none of the 'used_values' was
+        in our candidates set)."""
+        new_candidates = self.candidates.difference(used_values)
+        if new_candidates == self.candidates:
+            # didn't remove any candidates
+            return False
+        self.candidates = new_candidates
+        if len(self.candidates) == 1:
+            self.set_value(new_candidates.pop())
+        self.notify_all(TileEvent(self, EventKind.TileChanged))
+        return True
     
 # ---------------------
 # The Board Class
@@ -198,6 +216,45 @@ class Board(object):
                         used_symbols.append(tile.value)
         return True
 
+    def naked_single(self) -> bool:
+        """Eliminate Candidates and Check for sole remaining possibilities.
+        Return Value true means we crossed off at least one candidate.
+        Return Value False means we made no progress."""
+        made_progress = False
+
+        for row_idx in range(NROWS):
+            for col_idx in range(NCOLS):
+                tile = self.tiles[row_idx][col_idx]
+                if tile == '.':
+                    candidates = list(CHOICES)
+
+                    #row checks
+                    row_group = self.groups[NCOLS + row_idx]
+                    for tile in row_group:
+                        if tile != '.':
+                            candidates.remove(str(tile))
+
+                    #column check
+                    col_group = self.groups[col_idx]
+                    for tile in col_group:
+                        if tile != '.':
+                            candidates.remove(str(tile))
+
+                    #row checks
+                    block_idx = NCOLS + NROWS + ROOT * (row_idx // ROOT) + (col_idx // ROOT)
+                    block_group = self.groups[block_idx]
+                    for tile in block_group:
+                        if tile in block_group:
+                            if tile != '.':
+                                candidates.remove(str(tile))
+
+                    #Check for 'naked single'
+                    if len(str(CHOICES)) == 1:
+                        #update tile
+                        self.tiles[row_idx][col_idx] = str(int(candidates)[0])
+                        made_progress = True
+        return made_progress
+    
     def solve(self):
         #FIXME: This will be added in the next step.
         #FIXME: I'm cooking gus fring hard here tmr
