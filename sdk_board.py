@@ -185,7 +185,23 @@ class Board(object):
                         block_group.append(self.tiles[b_row_step][b_col_step])
                 self.groups.append(block_group)
 
+    # This next method checks for board consistency across groups
 
+    def is_consistent(self) -> bool:
+        for group in self.groups:
+            used_symbols = []
+            for tile in group:
+                if tile.value in CHOICES:
+                    if tile.value in used_symbols:
+                        return False
+                    else:
+                        used_symbols.append(tile.value)
+        return True
+
+    def solve(self):
+        #FIXME: This will be added in the next step.
+        #FIXME: I'm cooking gus fring hard here tmr
+        return
         
 
     

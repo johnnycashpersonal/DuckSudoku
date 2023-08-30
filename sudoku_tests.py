@@ -85,6 +85,48 @@ class TestBoardGroups(unittest.TestCase):
             self.assertNotIn(hash_sum, groups_by_hash,
                             msg=f"Oh no, group {group} is a duplicate!")
             groups_by_hash[hash_sum] = group
+        
+class TestConsistent(unittest.TestCase):
+    """Tests of the 'is_consistent' method"""
+
+    def test_good_complete_board(self):
+        """This one is from Wikipedia"""
+        board = Board()
+        board.set_tiles(["534678912", "672195348", "198342567",
+                        "859761423", "426853791", "713924856",
+                         "961537284", "287419635", "345286179"])
+        self.assertTrue(board.is_consistent())
+
+    def test_good_incomplete(self):
+        """From Sadman Sudoku"""
+        board = Board()
+        board.set_tiles(["...26.7.1", "68..7..9.", "19...45..",
+                        "82.1...4.", "..46.29..", ".5...3.28",
+                        "..93...74", ".4..5..36", "7.3.18..."])
+        self.assertTrue(board.is_consistent())
+
+    def test_bad_column(self):
+        board = Board()
+        board.set_tiles(["1........", ".........", ".........",
+                         ".........", ".........", ".........",
+                         "1........", ".........", "........."])
+        self.assertFalse(board.is_consistent())
+
+    def test_bad_row(self):
+        board = Board()
+        board.set_tiles([".........", ".........", ".........",
+                         ".........", ".2.....2.", ".........",
+                         ".........", ".........", "........."])
+        self.assertFalse(board.is_consistent())
+
+    def test_bad_block(self):
+        board = Board()
+        board.set_tiles([".........", "......1..", "........1",
+                         ".........", ".........", ".........",
+                         ".........", ".........", "........."])
+        self.assertFalse(board.is_consistent())   
+                    
+
 
 if __name__ == "__main__":
     print(os.getcwd())
