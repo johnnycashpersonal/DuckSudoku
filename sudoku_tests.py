@@ -24,6 +24,11 @@ class TestTileBasic(unittest.TestCase):
         self.assertEqual(tile.candidates, {'9'})
         self.assertEqual(repr(tile), "Tile(5, 7, '9')")
         self.assertEqual(str(tile), "9")
+class TestBoardInitialization(unittest.TestCase):
+
+    def test_group_count(self):
+        board = Board()
+        self.assertEqual(len(board.groups), NCOLS + NROWS + NBLOCKS, "Incorrect number of groups")
 
 class TestBoardBuild(unittest.TestCase):
 
@@ -124,7 +129,25 @@ class TestConsistent(unittest.TestCase):
         board.set_tiles([".........", "......1..", "........1",
                          ".........", ".........", ".........",
                          ".........", ".........", "........."])
-        self.assertFalse(board.is_consistent())   
+        self.assertFalse(board.is_consistent())  
+class TestNakedSingle(unittest.TestCase):
+    """Simple test of Naked Single using row, column, and block
+    constraints.  From Sadman Sudoku,
+    http://www.sadmansoftware.com/sudoku/nakedsingle.php
+    """
+    def test_sadman_example(self):
+        board = Board()
+        board.set_tiles([".........", "......1..", "......7..",
+                         "......29.", "........4", ".83......",
+                         "......5..", ".........", "........."])
+        progress = board.naked_single()
+        self.assertTrue(progress, "Should resolve one tile")
+        progress = board.naked_single()
+        self.assertTrue(progress, "A few candidates should be eliminated from other tiles")
+        progress = board.naked_single()
+        self.assertFalse(progress, "No more progress on this simple example")
+        self.assertEqual(str(board),
+            ".........\n......1..\n......7..\n......29.\n........4\n.83...6..\n......5..\n.........\n.........")
                     
 
 

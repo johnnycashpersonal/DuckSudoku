@@ -1,6 +1,7 @@
 """Sudoku solver with optional displays"""
 
 import argparse
+import sdk_board
 import sdk_display
 import sdk_reader
 

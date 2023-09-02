@@ -220,48 +220,64 @@ class Board(object):
         """Eliminate Candidates and Check for sole remaining possibilities.
         Return Value true means we crossed off at least one candidate.
         Return Value False means we made no progress."""
-        
-        made_progress = False
+        print("Entering naked_single method.")
+
+        progress = False
+        candidate_progress = False
 
         for row_idx in range(NROWS):
             for col_idx in range(NCOLS):
-                tile_value = self.tiles[row_idx][col_idx]  # Renamed to avoid shadowing
-                if tile_value == '.':
-                    candidates = list(CHOICES)  # Assuming CHOICES is a string, convert to list
+                tile_value = self.tiles[row_idx][col_idx].value 
+                if tile_value == UNKNOWN:
+                    candidates = list(CHOICES)
+                    print(f"Candidates after row checks for tile at row {row_idx}, col {col_idx}: {candidates}")
 
                     # Row Checks
                     row_group = self.groups[NCOLS + row_idx]
-                    for row_tile in row_group:  # Renamed to avoid shadowing
-                        if row_tile != '.':
-                            candidates.remove(row_tile)
+                    for row_tile in row_group:  
+                        # Inside each of your checks (Row, Column, Block)
+                        if row_tile.value != UNKNOWN and row_tile.value in candidates:
+                            candidates.remove(row_tile.value)
+                            
+                    print(f"Candidates after column checks for tile at row {row_idx}, col {col_idx}: {candidates}") 
 
                     # Column Check
                     col_group = self.groups[col_idx]
-                    for col_tile in col_group:  # Renamed to avoid shadowing
-                        if col_tile != '.':
-                            candidates.remove(col_tile)
+                    for col_tile in col_group: 
+                        if col_tile.value != UNKNOWN and col_tile.value in candidates:
+                            candidates.remove(col_tile.value)
+                            
+                    print(f"Candidates after block checks for tile at row {row_idx}, col {col_idx}: {candidates}")
 
                     # Block Check
                     block_idx = NCOLS + NROWS + ROOT * (row_idx // ROOT) + (col_idx // ROOT)
                     block_group = self.groups[block_idx]
-                    for block_tile in block_group:  # Renamed to avoid shadowing
-                        if block_tile != '.':
-                            candidates.remove(block_tile)
-
-                    # Check for 'Naked Single'
-                    if len(candidates) == 1:  # Corrected the condition
+                    for block_tile in block_group:  
+                        if block_tile.value != UNKNOWN and block_tile.value in candidates:
+                            candidates.remove(block_tile.value)
+                            
+                    old_candidates = self.tiles[row_idx][col_idx].candidates
+                    if old_candidates != set(candidates):
+                        self.tiles[row_idx][col_idx].candidates = set(candidates)
+                        candidate_progress = True
+                    
+                    # Check for 'Naked Single' and update progress
+                    if len(candidates) == 1:
+                        print(f"Resolving tile at row {row_idx}, col {col_idx} to value {candidates[0]}")  
                         # Update Tile
-                        self.tiles[row_idx][col_idx] = candidates[0]  # Corrected the update syntax
-                        made_progress = True
+                        self.tiles[row_idx][col_idx].set_value(candidates[0]) 
+                        progress = True
+                    
 
-        return made_progress
-
-    
+        if progress or candidate_progress:
+            return True
+        else:
+            print("Exiting naked_single with no progress.")
+            return True
+ 
     def solve(self):
-        #FIXME: This will be added in the next step.
-        #FIXME: I'm cooking gus fring hard here tmr
+        """Solve the puzzle!"""
+        progress = True
+        while progress:
+            progress = self.naked_single()
         return
-        
-
-    
-
