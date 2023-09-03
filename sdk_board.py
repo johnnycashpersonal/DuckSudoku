@@ -223,57 +223,25 @@ class Board(object):
         print("Entering naked_single method.")
 
         progress = False
-        candidate_progress = False
 
-        for row_idx in range(NROWS):
-            for col_idx in range(NCOLS):
-                tile_value = self.tiles[row_idx][col_idx].value 
-                if tile_value == UNKNOWN:
-                    candidates = list(CHOICES)
-                    print(f"Candidates after row checks for tile at row {row_idx}, col {col_idx}: {candidates}")
+        for group in self.groups:
+            #  get the set of symbols used in that group
+            group_symbols = set()
+            
+            for tile in group:
+                #This is a good place to check for invalid boards. 
+                if tile.value in CHOICES:
+                    group_symbols.add(tile.value)
 
-                    # Row Checks
-                    row_group = self.groups[NCOLS + row_idx]
-                    for row_tile in row_group:  
-                        # Inside each of your checks (Row, Column, Block)
-                        if row_tile.value != UNKNOWN and row_tile.value in candidates:
-                            candidates.remove(row_tile.value)
-                            
-                    print(f"Candidates after column checks for tile at row {row_idx}, col {col_idx}: {candidates}") 
+            # Eliminate symbols from candidate sets of unknown tiles in groups
 
-                    # Column Check
-                    col_group = self.groups[col_idx]
-                    for col_tile in col_group: 
-                        if col_tile.value != UNKNOWN and col_tile.value in candidates:
-                            candidates.remove(col_tile.value)
-                            
-                    print(f"Candidates after block checks for tile at row {row_idx}, col {col_idx}: {candidates}")
+            for tile in group:
+                remove_result = tile.remove_candidates(group_symbols)
 
-                    # Block Check
-                    block_idx = NCOLS + NROWS + ROOT * (row_idx // ROOT) + (col_idx // ROOT)
-                    block_group = self.groups[block_idx]
-                    for block_tile in block_group:  
-                        if block_tile.value != UNKNOWN and block_tile.value in candidates:
-                            candidates.remove(block_tile.value)
-                            
-                    old_candidates = self.tiles[row_idx][col_idx].candidates
-                    if old_candidates != set(candidates):
-                        self.tiles[row_idx][col_idx].candidates = set(candidates)
-                        candidate_progress = True
-                    
-                    # Check for 'Naked Single' and update progress
-                    if len(candidates) == 1:
-                        print(f"Resolving tile at row {row_idx}, col {col_idx} to value {candidates[0]}")  
-                        # Update Tile
-                        self.tiles[row_idx][col_idx].set_value(candidates[0]) 
-                        progress = True
-                    
+                if remove_result == True:
+                    progress = True
 
-        if progress or candidate_progress:
-            return True
-        else:
-            print("Exiting naked_single with no progress.")
-            return True
+        return progress
  
     def solve(self):
         """Solve the puzzle!"""
