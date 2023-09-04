@@ -7,6 +7,7 @@ from sdk_config import CHOICES, UNKNOWN, ROOT
 from sdk_config import NROWS, NCOLS, NBLOCKS
 
 import enum
+import time
 from typing import List, Sequence, Set 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -220,7 +221,7 @@ class Board(object):
         """Eliminate Candidates and Check for sole remaining possibilities.
         Return Value true means we crossed off at least one candidate.
         Return Value False means we made no progress."""
-        print("Entering naked_single method.")
+        print(f'Entering naked_single method at time {time.localtime()}')
 
         progress = False
 
@@ -245,7 +246,7 @@ class Board(object):
     
     # my hidden single method - IE the "this must contain some certain value as there's nowhere else to put it"
     def hidden_single(self):
-        print("entering hidden_single method")
+        print(f'entering hidden_single method time: {time.localtime()}')
         for group in self.groups: # each group of tiles in the groups definition
             leftovers = set(CHOICES)  #start with all choices
             
@@ -273,7 +274,7 @@ class Board(object):
                             tile.candidates = {value}
     
     def min_choice_tile(self) -> Tile:
-        print("finding a tile with minimum possibilities...")
+        print(f'finding a tile with minimum possibilities... time: {time.localtime()}')
         min_tile = None  # Initialize with None to indicate no tile has been found yet
         min_candidates = float('inf')  # Initialize with infinity for comparison
 
@@ -331,7 +332,7 @@ class Board(object):
         return True
     
     def solve(self) -> bool: # should have been 'ultimate_nuclear_fraud_cooker' but I call solve above
-        print("Cooking frauds, ultimately")
+        print(f'Solving... time: {time.localtime()}')
         # Step 1: Propagate constraints
         self.propagate()
 
@@ -358,8 +359,8 @@ class Board(object):
 
             # Step 5.1: Recursively try to solve with the new value
             if self.solve():
-                print("recursive call to the fraud cooker.")
-                return True
+                print(f'recursive call to the fraud cooker. Time: {time.localtime()}')
+            
 
             # Step 5.2: Restore to saved state if the guess was wrong
             self.set_tiles(saved_state)
