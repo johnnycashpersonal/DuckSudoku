@@ -245,6 +245,7 @@ class Board(object):
     
     # my hidden single method - IE the "this must contain some certain value as there's nowhere else to put it"
     def hidden_single(self):
+        print("entering hidden_single method")
         for group in self.groups: # each group of tiles in the groups definition
             leftovers = set(CHOICES)  #start with all choices
             
@@ -272,6 +273,7 @@ class Board(object):
                             tile.candidates = {value}
     
     def min_choice_tile(self) -> Tile:
+        print("finding a tile with minimum possibilities...")
         min_tile = None  # Initialize with None to indicate no tile has been found yet
         min_candidates = float('inf')  # Initialize with infinity for comparison
 
@@ -305,10 +307,6 @@ class Board(object):
             values = [tile.value for tile in row]
             row_syms.append("".join(values))
         return row_syms
-    
-    def save_restore(self):
-        self.__str__()
-        self.as_list()
 
     def is_complete(self) -> bool:
         
@@ -328,11 +326,12 @@ class Board(object):
         progress = True
         while progress:
             progress = self.naked_single()
-            print(Board())
+            print(self.__str__())
             self.hidden_single()
-        return
+        return True
     
-    def nuclear_solver(self) -> bool:
+    def solve(self) -> bool: # should have been 'ultimate_nuclear_fraud_cooker' but I call solve above
+        print("Cooking frauds, ultimately")
         # Step 1: Propagate constraints
         self.propagate()
 
@@ -358,7 +357,8 @@ class Board(object):
             min_tile.set_value(candidate)
 
             # Step 5.1: Recursively try to solve with the new value
-            if self.nuclear_solver():
+            if self.solve():
+                print("recursive call to the fraud cooker.")
                 return True
 
             # Step 5.2: Restore to saved state if the guess was wrong

@@ -266,6 +266,18 @@ class Mytests(unittest.TestCase):
             , "572346819"]
         board.set_tiles(tiles_list)
         self.assertFalse(board.is_complete())
+    
+    def test_guess_check(self):
+        """From data/evil.sdk"""
+        board = Board()
+        board.set_tiles(["....5..1.", "2........", "5.19..48.",
+                        "6...1.24.", "8.......7", ".23.4...1",
+                        ".69..28.3", "........4", ".4..8...."])
+        board.solve()
+        solution = ["497856312", "286134795", "531927486",
+                    "675319248", "814265937", "923748561",
+                    "169472853", "758693124", "342581679"]
+        self.assertEqual(board.as_list(), solution)
 
 
 if __name__ == "__main__":
