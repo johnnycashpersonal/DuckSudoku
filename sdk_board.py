@@ -253,12 +253,10 @@ class Board(object):
                 if tile.value in leftovers:
                     leftovers.remove(tile.value)
         
-            for other_tile in group:
-                if other_tile is not tile:
-                    other_tile.candidates.discard(tile.value)
+                for other_tile in group:
+                    if other_tile is not tile:
+                        other_tile.candidates.discard(tile.value)
 
-                    
-                
             for value in leftovers:
                 #count unknown tiles in a group
                 candidate_tiles = [tile for tile in group if tile.value == UNKNOWN]
@@ -272,14 +270,99 @@ class Board(object):
                         if value in tile.candidates:
                             tile.value = value
                             tile.candidates = {value}
+    
+    def min_choice_tile(self) -> Tile:
+        min_tile = None  # Initialize with None to indicate no tile has been found yet
+        min_candidates = float('inf')  # Initialize with infinity for comparison
+
+        for row in self.tiles:
+            for tile in row:
+                # We are only interested in tiles with value UNKNOWN
+                if tile.value == UNKNOWN:
+                    num_candidates = len(tile.candidates)
+                    
+                    if num_candidates < min_candidates:
+                        min_candidates = num_candidates
+                        min_tile = tile
+
+        # At this point, min_tile will hold the tile with the fewest candidates
+        # If no such tile exists, min_tile will still be None
+        return min_tile
+    
+    #Saving and restoring our state when we make a mistake and have to backtrack
+
+    def __str__(self) -> str:
+        """In Sadman Sudoku format"""
+        return "\n".join(self.as_list())
 
 
+    def as_list(self) -> List[str]:
+        """Tile values in a format compatible with 
+        set_tiles.
+        """
+        row_syms = [ ]
+        for row in self.tiles:
+            values = [tile.value for tile in row]
+            row_syms.append("".join(values))
+        return row_syms
+    
+    def save_restore(self):
+        self.__str__()
+        self.as_list()
+
+    def is_complete(self) -> bool:
+        
+        for group in self.groups:
+            for tile in group:
+                if tile.value in set(CHOICES):
+                    continue
+                else:
+                    return False
+        return True
                             
-    def solve(self):
-        """Solve the puzzle!"""
+    def propagate(self):
+        """Repeat solution tactics until we
+        don't make any progress, whether or not
+        the board is solved.
+        """
         progress = True
         while progress:
             progress = self.naked_single()
             print(Board())
             self.hidden_single()
         return
+    
+    def nuclear_solver(self) -> bool:
+        # Step 1: Propagate constraints
+        self.propagate()
+
+        # Step 2: Check if the board is solved
+        if self.is_complete():
+            return True
+
+        # Check for inconsistency
+        if not self.is_consistent():
+            return False
+
+        # Step 3: Save the current state for backtracking
+        saved_state = self.as_list()
+
+        # Step 4: Select a tile with the minimum number of candidates
+        min_tile = self.min_choice_tile()
+
+        if min_tile is None:
+            return False  # No tile to choose, so it's inconsistent
+
+        # Step 5: Try each candidate value for the tile
+        for candidate in min_tile.candidates:
+            min_tile.set_value(candidate)
+
+            # Step 5.1: Recursively try to solve with the new value
+            if self.nuclear_solver():
+                return True
+
+            # Step 5.2: Restore to saved state if the guess was wrong
+            self.set_tiles(saved_state)
+
+        # If we get here, none of the candidates worked
+        return False
