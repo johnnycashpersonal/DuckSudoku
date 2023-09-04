@@ -242,10 +242,44 @@ class Board(object):
                     progress = True
 
         return progress
- 
+    
+    # my hidden single method - IE the "this must contain some certain value as there's nowhere else to put it"
+    def hidden_single(self):
+        for group in self.groups: # each group of tiles in the groups definition
+            leftovers = set(CHOICES)  #start with all choices
+            
+            for tile in group:
+                #remove candidates if value is in group
+                if tile.value in leftovers:
+                    leftovers.remove(tile.value)
+        
+            for other_tile in group:
+                if other_tile is not tile:
+                    other_tile.candidates.discard(tile.value)
+
+                    
+                
+            for value in leftovers:
+                #count unknown tiles in a group
+                candidate_tiles = [tile for tile in group if tile.value == UNKNOWN]
+
+                # Count occurrences of this value as a candidate in the group
+                count = sum(1 for tile in candidate_tiles if value in tile.candidates)
+                        
+                # If it appears only once, set that tile's value to the candidate
+                if count == 1:
+                    for tile in candidate_tiles:
+                        if value in tile.candidates:
+                            tile.value = value
+                            tile.candidates = {value}
+
+
+                            
     def solve(self):
         """Solve the puzzle!"""
         progress = True
         while progress:
             progress = self.naked_single()
+            print(Board())
+            self.hidden_single()
         return

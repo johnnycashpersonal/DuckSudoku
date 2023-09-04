@@ -160,7 +160,43 @@ class TestNakedSingle(unittest.TestCase):
                             "\n".join(["435269781", "682571493", "197834562",
                                         "826195347", "374682915", "951743628",
                                         "519326874", "248957136", "763418259"]))
-                        
+
+class TestHiddenSingle(unittest.TestCase):
+    """Test the Hidden Single tactic, which must be combined with the
+    naked single tactic.
+    """
+
+    def test_hidden_single_example(self):
+        """Simple example from Sadman Sudoku. Since 2 is blocked
+        in two columns of the board, it must go into the middle
+        column.
+        """
+        board = Board()
+        board.set_tiles([".........", "...2.....",  ".........",
+                         "....6....", ".........",  "....8....",
+                         ".........", ".........", ".....2..."])
+        board.naked_single()
+        board.hidden_single()
+        self.assertEqual(str(board),
+                         "\n".join(
+                        [".........", "...2.....",  ".........",
+                         "....6....", "....2....",  "....8....",
+                         ".........", ".........", ".....2..."]))
+        
+    def test_hidden_single_solve(self):
+        board = Board()
+        board.set_tiles(["......12.", "24..1....", "9.1..4...",
+                        "4....365.", "....9....", ".364....1",
+                        "...1..5.6", "....5..43", ".72......"])
+        print("Before solve:")
+        print(board)
+        board.solve()
+        print("After solve:")
+        print(board)
+        self.assertEqual(str(board),
+                        "\n".join(["687539124", "243718965", "951264387",
+                                    "419873652", "725691438", "836425791",
+                                    "394182576", "168957243", "572346819"]))
 
 
 if __name__ == "__main__":
