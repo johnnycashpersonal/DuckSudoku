@@ -11,7 +11,7 @@ import time
 from typing import List, Sequence, Set 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) 
 
 # ---------------------
 # The events for MVC 
@@ -359,11 +359,10 @@ class Board(object):
 
             # Step 5.1: Recursively try to solve with the new value
             if self.solve():
-                print(f'recursive call to the fraud cooker. Time: {time.localtime()}')
-            
+               return True
 
-            # Step 5.2: Restore to saved state if the guess was wrong
-            self.set_tiles(saved_state)
+            else: # Step 5.2: Restore to saved state if the guess was wrong
+                self.set_tiles(saved_state)
 
         # If we get here, none of the candidates worked
         return False
